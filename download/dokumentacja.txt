@@ -1,0 +1,71 @@
+Dokumentacja:
+
+Dostarczone wymagania:
+	"Rozwiązanie ma monitorować folder plików. W momencie pojawienia pliku następuje jego otwarcie i zaczytanie kolejnych linii a następnie zapis do bazy danych (jednorazowo).
+	Jako świetny przykład mogą posłużyć kursy walut (np. ze strony http://www.nbp.pl/kursy/ ). Rozwiązanie ma pobierać ww. pliku (ze strony NBP) i umieszczać je w odpowiednim katalogu/ach.
+	Na podstawie zawartości (informacjach o kursach walut) prezentowane mają być wykres/y (oraz trendy) walut. „Frontend” ma dawać możliwość wyboru kursów (jeden lub wiele) oraz zakresu dat.
+	Jako dodatkową funkcję proponuję przygotować predykcję kursu na kolejny odcinek czasu (tydzień, miesiąc,…) . "
+
+Założenia:
+	- monitorowany jest folder "\download\" (w przypadku testowanych systemów - windows 7 był to folder na dysku z którego uruchomiony został serwer)
+	- pliki po zaczytaniu są przenoszone do "\download\arch\"
+	- foldery sa samodzielnie tworzony przez aplikację
+	
+	- do prawidłowego działania wymagana jest tabela "er_currency"
+	- skrypt zakładający tabelę znajdują się w załącznikach (osobny skrypt dla bazy danych MsSQL oraz dla PostgreSQL)
+	- przed zainstalowaniem aplikacji na serwerze w metodzi com.mo.extremerobotics.conf.DbConf.getConnection() należy zamienić xxxx na odpowiednie dane dostępowe do bazy danych (nazwę bazy, login, hasło)
+		oraz ustawić zmienną com.mo.extremerobotics.conf.DbConf.curentDb na odpowiedni serwer ("PS" PostgreSQL lub "MS" MsSQL)
+	- testowane na MsSQL 2008, 2014 oraz PostgreSQL 9.6
+	
+	- na stronie głównej (np. localhost:8080/ExtremeRobotics/) jest ktrótki opis możliwości
+	- do działania wymagany jest serwer (testowane na Tomcat v8 oraz WildFly 10)
+	
+	- projekt dostarczany jest w formie plików zródłowych
+	- do zbudowania wymagany jest Maven (pobiera potrzebne zależności)
+	
+	- pobierane waluty:	Dolar amerykanski, Euro, Frank szwajcarski, Hrywna, Korona czeska, Kuna, Peso filipinskie, Rand, Rubel rosyjski, Yuan renminbi
+	- dane gromadzone są od 2014-01-01
+	- równocześnie można wyświetlić od 1 do 10 kursów
+	- prognozowanie jest dla dowolnej ilości dni
+	- linie trendu wyświetlane są opcjonalnie
+	
+Budowa:
+	JSP:
+	- index.jsp - strona startowa z krótką informacją
+	- work.jsp - główna strona prezentująca wyniki
+	
+	JAVA:
+	com.mo.extremerobotics:
+	Start.java 	- gówna strona serwletu. Metoda init() - uruchamia zadania: pierwszego pobrania danych (csv), systematycznego pobierania nowych danych (xml) oraz nadzoru nad katalogiem.
+				metody doPost(HttpServletRequest request, HttpServletResponse response) oraz processRequest(HttpServletRequest request, HttpServletResponse response) pobierają dane z interfejsu oraz wywołują przygotowanie wykresu.
+	
+	com.mo.extremerobotics.chart:
+	ChartCreate.java - metoda createChart(String dateFrom, String dateTo, String[] currencies, int future, String trend) wypełnia kod JS danymi przygotowywując skrypt do generowania wykresów.
+	
+	com.mo.extremerobotics.conf:
+	DbConf.java	- getConnection() - nawiązuje połączenia z bazą danch, closeConnection(Connection connection) - zamyka je.
+	SelectOptions.java - przygotowanie wpisów dla kontrolki "select"
+	Params.java - enum dla metody getLastTableNo() i  getMissingXml(Map<Params, String> params)
+	
+	com.mo.extremerobotics.db:
+	DbRead.java - odpowiada za pobieranie danych z bd. Metoda getLastTableNo() - wyszukuje ostatni wpis w tabeli (z najnowszą datą) - potrzebne do poszukiwania aktualizacji kursów.
+				getData(String dateFrom, String dateTo, String[] currencies) na podstawie ustawień z interfejsu pobiera odpowiedni zakres kursów
+	DbSave.java	- saveList(List<String[]> list) - zapisuje dane wydobyte z plików.
+	Queries.java - zapisane są tu są zapytania - metody przekazują odpowiednie wersje zapytań w zależności od wybranej bazy danych
+	
+	com.mo.extremerobotics.directorywatcher:
+	Watcher.java - processEvents() nadzoruje katalog
+	FromFileToDb.java - znalezione pliki przez processEvents() kieruje do dekodowania i zapisania do bd
+	
+	com.mo.extremerobotics.download:
+	Downloader.java - saveFile(String sourceUrl, String destinationFile) - pobiera plik z danego adresu i zapisuje w wybranym katalogu, verifyAndCreateStandardPaths() sprawdza czy są katalogi i ew. je tworzy
+	DownloaderInitial.java	- isTableFilled() sprawdza czy mamy conajmniej rok danych w bazie. downloadHistory() pobierapliki csv z danymi za lata 2014-2016(poprzedni rok)
+	DownloaderXml.java - dowloadActualCurrency() na podstawie danych z metod getMissingXml(Map<Params, String> params) i getLastTableNo() pobiera brakujące dni - xml
+	
+	com.mo.extremerobotics.read:
+	CsvReader.java - readCsv(String filename) wyciąga dane z pliku csv (dane roczne)
+	XmlReader.java - readXml(String filename) wyciąga dane z pliku xml (dzienne)
+
+	com.mo.extremerobotics.trendlinelib:
+	"zewnętrzna biblioteka" wyliczająca linię trendu
+	

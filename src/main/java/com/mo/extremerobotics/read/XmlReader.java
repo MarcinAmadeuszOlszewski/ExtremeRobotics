@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +17,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XmlReader {
-
+	final static Logger logger = Logger.getLogger(XmlReader.class);
+	
 	public List<String[]> readXml(String filename) {
 		List<String[]> out = new ArrayList<>();
 		File fXmlFile = new File(filename);
@@ -44,8 +46,7 @@ public class XmlReader {
 
 			out.add(linia);
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			System.err.println("readXml: "+filename);
-			e.printStackTrace();
+			logger.error("readXml: " + filename, e);
 		}
 
 		return out;

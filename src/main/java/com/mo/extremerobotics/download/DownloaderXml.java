@@ -9,8 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.mo.extremerobotics.conf.Params;
 import com.mo.extremerobotics.db.DbRead;
+import com.mo.extremerobotics.read.CsvReader;
 
 public class DownloaderXml extends Downloader {
 	public static final String AKT_DZIEN = "http://www.nbp.pl/kursy/xml/";
@@ -20,8 +23,8 @@ public class DownloaderXml extends Downloader {
 		URL url = null;
 		try {
 			url = new URL("http://www.nbp.pl/kursy/xml/dir.txt");
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
+		} catch (MalformedURLException e) {
+			logger.error("getMissingXml: ", e);
 		}
 
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));) {
@@ -34,12 +37,13 @@ public class DownloaderXml extends Downloader {
 				if (lastFinded) {
 					out.add(line + ".xml");
 				}
-				if (!lastFinded && line.contains(params.get(Params.maxTableNo)) && line.contains(params.get(Params.maxDate))) {
+				if (!lastFinded && line.contains(params.get(Params.maxTableNo))
+						&& line.contains(params.get(Params.maxDate))) {
 					lastFinded = true;
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("getMissingXml: ", e);
 		}
 		return out;
 	}

@@ -11,10 +11,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServlet;
+
+import org.apache.log4j.Logger;
+
 import com.mo.extremerobotics.conf.DbConf;
 import com.mo.extremerobotics.conf.Params;
 
 public class DbRead {
+	final static Logger logger = Logger.getLogger(DbRead.class);
 
 	public ArrayList<ArrayList<String>> getData(String dateFrom, String dateTo, String[] currencies) {
 		ArrayList<ArrayList<String>> out = new ArrayList<>();
@@ -39,7 +44,7 @@ public class DbRead {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("getData:", e);
 		}
 
 		return out;
@@ -48,8 +53,7 @@ public class DbRead {
 	public static Map<Params, String> getLastTableNo() {
 		Connection connection = DbConf.getConnection();
 		Map<Params, String> params = new HashMap<>();
-		try (Statement s1 = connection.createStatement();
-				ResultSet rs = s1.executeQuery(Queries.getMissingXml());) {
+		try (Statement s1 = connection.createStatement(); ResultSet rs = s1.executeQuery(Queries.getMissingXml());) {
 
 			if (rs != null) {
 				while (rs.next()) {
@@ -58,7 +62,7 @@ public class DbRead {
 				}
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			logger.error("getLastTableNo:", e);
 		} finally {
 			DbConf.closeConnection(connection);
 		}

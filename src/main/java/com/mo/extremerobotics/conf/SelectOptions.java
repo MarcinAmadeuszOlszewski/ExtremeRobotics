@@ -7,6 +7,7 @@ public class SelectOptions {
 
 	private SelectOptions() {
 	}
+
 	public static Map<String, String> createSelectOptions() {
 		Map<String, String> selectOpt = new LinkedHashMap<>();
 		selectOpt.put("USD", "Dolar amerykanski");

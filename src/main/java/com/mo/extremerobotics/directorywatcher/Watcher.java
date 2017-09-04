@@ -10,7 +10,10 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
+import org.apache.log4j.Logger;
+
 public class Watcher {
+	final static Logger logger = Logger.getLogger(Watcher.class);
 	private WatchService watcher;
 	private Path directory;
 	private FromFileToDb fromFileToDb = new FromFileToDb();
@@ -22,8 +25,7 @@ public class Watcher {
 			directory = dir;
 		} catch (IOException e) {
 			this.watcher = null;
-			System.err.println("ERROR IN INITIATING WATCHER");
-			e.printStackTrace();
+			logger.error("Watcher: ERROR IN INITIATING WATCHER: ", e);
 		}
 	}
 
@@ -52,7 +54,7 @@ public class Watcher {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error("processEvents: ", e);
 				}
 				fromFileToDb.file(child);
 			}

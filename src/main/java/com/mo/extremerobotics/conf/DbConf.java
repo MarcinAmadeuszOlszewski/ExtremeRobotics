@@ -4,37 +4,28 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
+
+import static com.mo.extremerobotics.Start.PROPERTIES;
+
 public class DbConf {
-	public static String curentDb = "PS";// "PS","MS"
+	final static Logger logger = Logger.getLogger(DbConf.class);
 
 	private DbConf() {
 	}
 
 	public static Connection getConnection() {
 		Connection connection = null;
-		String sqlDriverName = "";
-		String databaseUrl = "";
-		String databasePassword = "";
-		String databaseUsername = "";
-		if (DbConf.curentDb.equals("PS")) {
-			// PostgreSQL
-			sqlDriverName = "org.postgresql.Driver";
-			databaseUrl = "jdbc:postgresql://127.0.0.1:5432/xxxx";
-			databasePassword = "xxxx";
-			databaseUsername = "xxxx";
-		} else {
-			// MSSQL
-			sqlDriverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-			databaseUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=xxxx";
-			databasePassword = "xxxx";
-			databaseUsername = "xxxx";
-		}
+		String sqlDriverName = PROPERTIES.getProperty("sqlDriverName");
+		String databaseUrl = PROPERTIES.getProperty("databaseUrl");
+		String databasePassword = PROPERTIES.getProperty("databasePassword");
+		String databaseUsername = PROPERTIES.getProperty("databaseUsername");
 
 		try {
 			Class.forName(sqlDriverName);
 			connection = DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword);
 		} catch (SQLException | ClassNotFoundException e) {
-			e.printStackTrace();
+			logger.error("getConnection:", e);
 		}
 		return connection;
 	}
@@ -44,7 +35,7 @@ public class DbConf {
 			try {
 				connection.close();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				logger.error("closeConnection:", e);
 			}
 		}
 	}

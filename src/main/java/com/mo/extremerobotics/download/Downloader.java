@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.mo.extremerobotics.download;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,10 +9,19 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public abstract class Downloader {
+import org.apache.log4j.Logger;
 
-	public static final String DEST_DIR = File.separator + "download" + File.separator;
-	public static final String ARCH_DIR = File.separator + "download" + File.separator + "arch" + File.separator;
+import com.mo.extremerobotics.read.CsvReader;
+
+import static com.mo.extremerobotics.Start.PROPERTIES;
+import static java.io.File.separator;
+
+public abstract class Downloader {
+	final static Logger logger = Logger.getLogger(Downloader.class);
+	public static final String DEST_DIR = separator + PROPERTIES.getProperty("homeDir") + separator + "download"
+			+ separator;
+	public static final String ARCH_DIR = separator + PROPERTIES.getProperty("homeDir") + separator + "download"
+			+ separator + "arch" + separator;
 
 	public void saveFile(String sourceUrl, String destinationFile) {
 		verifyAndCreateStandardPaths();
@@ -37,7 +40,7 @@ public abstract class Downloader {
 				Files.createDirectory(Paths.get(Downloader.ARCH_DIR));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("verifyAndCreateStandardPaths: ", e);
 		}
 	}
 
@@ -45,8 +48,8 @@ public abstract class Downloader {
 		URL url = null;
 		try {
 			url = new URL(sourceUrl);
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
+		} catch (MalformedURLException e) {
+			logger.error("connectToWebsite: ", e);
 		}
 		return url;
 	}
@@ -62,11 +65,11 @@ public abstract class Downloader {
 			while ((length = is.read(b)) != -1) {
 				os.write(b, 0, length);
 			}
-			System.out.print(" +" + (destinationFile + filename));
+			logger.info(" +" + (destinationFile + filename));
 		} catch (IOException e) {
-			System.out.print(" -" + (destinationFile + filename) + " " + sourceUrl);
+			logger.info(" -" + (destinationFile + filename) + " " + sourceUrl);
+			logger.error("downloadFile: ", e);
 		}
-		System.out.println();
 	}
 
 }

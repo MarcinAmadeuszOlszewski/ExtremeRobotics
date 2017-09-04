@@ -7,15 +7,17 @@ Dostarczone wymagania:
 	Jako dodatkową funkcję proponuję przygotować predykcję kursu na kolejny odcinek czasu (tydzień, miesiąc,…) . "
 
 Założenia:
-	- monitorowany jest folder "\download\" (w przypadku testowanych systemów - windows 7 był to folder na dysku z którego uruchomiony został serwer)
-	- pliki po zaczytaniu są przenoszone do "\download\arch\"
-	- foldery sa samodzielnie tworzony przez aplikację
-	
+	- do prawidłowego działania wymagany jest plik conf.properties w katalogu \er\conf (bależy w nim uzupełnić pola: databaseUrl, databasePassword, databaseUsername odpowiedzialne za połączenie z bazą danych)
 	- do prawidłowego działania wymagana jest tabela "er_currency"
-	- skrypt zakładający tabelę znajdują się w załącznikach (osobny skrypt dla bazy danych MsSQL oraz dla PostgreSQL)
-	- przed zainstalowaniem aplikacji na serwerze w metodzi com.mo.extremerobotics.conf.DbConf.getConnection() należy zamienić xxxx na odpowiednie dane dostępowe do bazy danych (nazwę bazy, login, hasło)
-		oraz ustawić zmienną com.mo.extremerobotics.conf.DbConf.curentDb na odpowiedni serwer ("PS" PostgreSQL lub "MS" MsSQL)
-	- testowane na MsSQL 2008, 2014 oraz PostgreSQL 9.6
+	- plik conf.properties oraz skrypt zakładający tabelę znajdują się w osobnym załączniku
+	
+	- monitorowany jest folder "\er\download\" (w przypadku testowanych systemów - windows 7 był to folder na dysku z którego uruchomiony został serwer)
+	- pliki po zaczytaniu są przenoszone do "\er\download\arch\"
+	- foldery "\download\" i "\download\arch\" sa samodzielnie tworzone przez aplikację
+	
+	- UWAGA: w przypadku uruchamiania pod Linuxem proszę o weryfikację poprawności ukośników w parametrze "log4j.appender.file.File=" w "\ExtremeRobotics\resources\log4j.properties"
+	
+	- testowane PostgreSQL 9.6
 	
 	- na stronie głównej (np. localhost:8080/ExtremeRobotics/) jest ktrótki opis możliwości
 	- do działania wymagany jest serwer (testowane na Tomcat v8 oraz WildFly 10)
@@ -51,7 +53,7 @@ Budowa:
 	DbRead.java - odpowiada za pobieranie danych z bd. Metoda getLastTableNo() - wyszukuje ostatni wpis w tabeli (z najnowszą datą) - potrzebne do poszukiwania aktualizacji kursów.
 				getData(String dateFrom, String dateTo, String[] currencies) na podstawie ustawień z interfejsu pobiera odpowiedni zakres kursów
 	DbSave.java	- saveList(List<String[]> list) - zapisuje dane wydobyte z plików.
-	Queries.java - zapisane są tu są zapytania - metody przekazują odpowiednie wersje zapytań w zależności od wybranej bazy danych
+	Queries.java - zapisane są tu są zapytania
 	
 	com.mo.extremerobotics.directorywatcher:
 	Watcher.java - processEvents() nadzoruje katalog
